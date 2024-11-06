@@ -1,0 +1,35 @@
+@page "/login"
+@using SocialMediaTesting.Services
+@inject UserService User
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+<form @onsubmit="HandleLogin" class="form-inline">
+    <input @bind="email" placeholder="Enter your email address" />
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+<p>@message</p>
+
+@code {
+    private string email = "";
+    private MarkupString message = new MarkupString();
+    
+    // Login logic
+    private async Task HandleLogin()
+    {
+        var user = await User.Login(email);
+        if (user != null)
+        {
+            NavigationManager.NavigateTo("/", true);
+        }
+        else
+        {
+            message = new MarkupString("User not found. Please <a href='/createaccount'>create an account</a>.");
+        }
+    }
+}

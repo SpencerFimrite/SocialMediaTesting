@@ -1,0 +1,91 @@
+﻿@using SocialMediaTesting.Services
+@using SocialMediaTesting.Models
+@inject UserService UserService
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"></a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        @if (isUserLoggedIn)
+        {
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="search">
+                <!-- Need to resize the search icon -->
+                <span class="bi bi-search" style="vertical-align: middle; line-height: 1; font-size: 1.2em;" aria-hidden="true"></span> Search
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="upload">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Upload
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href=@($"profile/{user.UserName}")>
+                <!-- Need to resize the profile icon -->
+                <span class="bi bi-person-fill" style="display: inline-flex; align-items: center;"></span> Profile
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="login" @onclick="Logout">
+                <!-- Need to resize the logout icon -->
+                <span class="bi bi-box-arrow-right" style="vertical-align: middle; line-height: 1; font-size: 1.2em;" aria-hidden="true"></span> Logout
+            </NavLink>
+        </div>
+        }
+        else
+        {
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="login">
+                <!-- Need to resize the login icon -->
+                <span class="bi bi-box-arrow-in-right" style="vertical-align: middle; line-height: 1; font-size: 1.2em;" aria-hidden="true"></span> Login
+            </NavLink>
+        </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool isUserLoggedIn = false;
+    private bool collapseNavMenu = true;
+    private User user;
+    
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    // Gets current user and login status
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserService.GetCurrentUser();
+        isUserLoggedIn = await UserService.IsUserLoggedIn();
+    }
+    
+    // Default Blazor function to collapse nav menu upon resizing of page
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    // Gets user login status
+    private async Task IsUserLoggedIn()
+    {
+        isUserLoggedIn = await UserService.IsUserLoggedIn();
+    }
+
+    // Logs the user out
+    private async Task Logout()
+    {
+        await UserService.Logout();
+        isUserLoggedIn = false;
+    }
+}

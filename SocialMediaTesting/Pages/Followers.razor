@@ -1,0 +1,43 @@
+@page "/profile/{UserName}/followers"
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Services
+@inject UserService UserService
+
+<PageTitle>@UserName's followers</PageTitle>
+
+<h3>Followers:</h3>
+
+@if (followers.Count == 0)
+{
+    <p>No followers yet</p>
+}
+else
+{
+    foreach (User u in followers)
+    {
+        <p><a href="/profile/@u.UserName">@u.Name</a></p><br/>
+    }
+}
+
+
+@code {
+    [Parameter]
+    public string UserName { get; set; }
+
+    private List<User> followers = new List<User>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Gets specified user, pulls list of users following this user
+        var user = await UserService.GetUserByUserName(UserName);
+        if (user != null && user.FollowersIds != null)
+        {
+            followers = await UserService.GetUsersByIds(user.FollowersIds);
+        }
+        else
+        {
+            followers = new List<User>();
+        }
+    }
+
+}

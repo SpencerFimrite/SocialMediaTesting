@@ -1,0 +1,70 @@
+@page "/upload"
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Services
+@inject PostService PostService
+@inject UserService UserService
+
+<form @onsubmit="HandleSubmit">
+    <textarea @bind="postContent" placeholder="Enter post text"></textarea>
+    <InputFile OnChange="HandleFileSelected" />
+    <input type="submit">
+</form>
+
+@if (!string.IsNullOrEmpty(imagePreview))
+{
+    <div>
+        <h4>Image Preview:</h4>
+        <img src="@imagePreview" alt="Selected Image" style="max-width: 300px;" />
+    </div>    
+}
+
+
+@code {
+    private string postContent = string.Empty;
+    private string imageBase64;
+    private string imagePreview;
+    private List<Post> posts = new List<Post>();
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(stream);
+                var fileBytes = stream.ToArray();
+                imageBase64 = Convert.ToBase64String(fileBytes);
+                imagePreview = $"data:{file.ContentType};base64,{imageBase64}";
+
+                //Re-renders to show the image preview
+                StateHasChanged();
+            }
+        }
+    }
+
+    // Function to submit a post.
+    private async Task HandleSubmit()
+    {
+        var currentUser = await UserService.GetCurrentUser();
+        if (currentUser != null)
+        {
+            // Sets post details
+            var newPost = new Post
+            {
+                Content = postContent,
+                Image = imageBase64,
+                UserId = currentUser.Id,
+                Timestamp = DateTime.Now,
+                LikeCount = 0
+            };
+            // Adds new post to list of all posts
+            await PostService.AddPost(newPost);
+            postContent = string.Empty;
+            imageBase64 = string.Empty;
+            imagePreview = string.Empty;
+            posts = await PostService.GetAllPosts();
+        }
+    }
+}

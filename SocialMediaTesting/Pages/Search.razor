@@ -1,0 +1,37 @@
+@page "/search"
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Services
+@inject UserService UserService
+
+<h3>User Search</h3>
+<input type="search" placeholder="Enter user's name" @oninput="OnSearchChanged" /><br/>
+
+@if (!string.IsNullOrWhiteSpace(userName) && availableUsers != null)
+{
+    @foreach (User u in availableUsers)
+    {
+        @* Filters list by value typed in search box*@
+        if (u.Name.Contains(userName, StringComparison.OrdinalIgnoreCase))
+        {
+            <a href="/profile/@u.UserName">@(new MarkupString(u.Name))</a><br/>
+        }
+    }
+}
+
+@code {
+    private string userName = string.Empty;
+    private List<User> availableUsers;
+
+    // Updates list with each letter typed
+    private async Task OnSearchChanged(ChangeEventArgs e)
+    {
+        userName = e.Value.ToString();
+        await DisplayUsers();
+    }
+
+    // Gets list of all users
+    public async Task DisplayUsers()
+    {
+        availableUsers = await UserService.GetAllUsers();
+    }
+}

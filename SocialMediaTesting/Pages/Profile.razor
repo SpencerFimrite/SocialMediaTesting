@@ -1,0 +1,71 @@
+@page "/profile/{UserName}"
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Services
+@using SocialMediaTesting.Components
+@using System.Linq
+@inject UserService UserService
+@inject PostService PostService
+
+@* Shows profile information for specified user *@
+@if (user != null)
+{
+    <h1>Profile for @user?.Name</h1>
+    <p><strong>Username:</strong> @user.UserName</p>
+    <p><strong>Email:</strong> @user.Email</p>
+    <p><strong>Following:</strong> <a href="/profile/@user.UserName/following">@(user.FollowingIds?.Count ?? 0)</a></p>
+    <p><strong>Followers:</strong> <a href="/profile/@user.UserName/followers">@(user.FollowersIds?.Count ?? 0)</a></p>
+    <p><strong>Liked Posts:</strong></p>
+    <button @onclick="ToggleFollow">@FollowStatus</button>
+    
+    <h3>User Posts:</h3>
+    @foreach (var post in userPosts)
+    {
+        <PostComponent PostId="@post.PostId"/>
+    }
+    
+}
+else
+{
+    <p>You must be signed in to view user profiles</p>
+}
+
+@code {
+    [Parameter] public string UserName { get; set; }
+
+    private string FollowStatus;
+    private User user;
+    private bool isLoggedIn;
+    private List<Post> userPosts = new List<Post>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // If user is logged in show custom profile information
+        isLoggedIn = await UserService.IsUserLoggedIn();
+        if (isLoggedIn)
+        {
+            user = await UserService.GetUserByUserName(UserName);
+            var posts = await PostService.GetAllPosts();
+            userPosts = posts.Where(p => p.UserId == user.Id).ToList();
+            
+            if (user != null)
+            {
+                FollowStatus = UserService.IsFollowing(user) ? "Following" : "Follow";
+            }
+        }
+    }
+
+    // Handles follow/unfollow logic
+    private async Task ToggleFollow()
+    {
+        if (FollowStatus.Equals("Following"))
+        {
+            await UserService.UnFollowUser(user);
+            FollowStatus = "Follow";
+        }
+        else if (FollowStatus.Equals("Follow"))
+        {
+            await UserService.FollowUser(user);
+            FollowStatus = "Following";
+        }
+    }
+}

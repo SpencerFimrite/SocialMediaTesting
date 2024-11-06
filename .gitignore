@@ -1,0 +1,92 @@
+# Ignore build results
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.exe
+*.dll
+*.log
+*.sql
+*.pdb
+*.cache
+*.ilk
+*.lib
+*.obj
+*.tmp
+*.userosscache
+*.vspscc
+*.vssscc
+
+# Ignore Rider specific files
+.idea/
+.idea/*
+
+# Ignore Visual Studio Code specific files
+.vscode/
+
+# Ignore Visual Studio specific files
+.vs/
+*.csproj.user
+*.suo
+*.user
+*.userprefs
+*.tlog
+*.lastcodeanalysissucceeded
+
+# Ignore macOS generated files
+.DS_Store
+
+# Ignore Windows specific files
+Thumbs.db
+desktop.ini
+
+# Ignore Rider's caches
+.idea/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/.idea_modules
+.idea/shelf/
+.idea/workspace.xml
+.idea/vcs.xml
+.idea/compiler.xml
+.idea/gradle.xml
+.idea/libraries/
+.idea/tasks.xml
+.idea/copyright/
+.idea/dictionaries/
+.idea/checkstyle-idea.xml
+
+# Ignore log and crash files
+*.log
+*.log.*
+hs_err_pid*
+
+# Ignore database-related files
+*.mdf
+*.ldf
+*.ndf
+
+# Ignore build artifacts (if you have any external build or CI tools)
+build/
+
+# Ignore temporary files
+*.tmp
+*.temp
+~$*
+
+# Ignore Rider and ReSharper caches
+.idea/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+.idea/shelf
+.idea/.idea_modules
+.idea/modules.xml
+.idea/vcs.xml
+
+# Ignore additional macOS files
+.AppleDouble
+.LSOverride

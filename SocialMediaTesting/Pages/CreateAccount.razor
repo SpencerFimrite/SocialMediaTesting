@@ -1,0 +1,29 @@
+@page "/createaccount"
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create Account</PageTitle>
+
+<h1>Create Account</h1>
+
+<form @onsubmit="HandleCreateAccount" class="form-inline">
+    <input @bind="newUser.Name" placeholder="Enter your name" />
+    <input @bind="newUser.Email" placeholder="Enter your email" />
+    <input @bind="newUser.Number" placeholder="Enter your phone number" />
+    <input @bind="newUser.Address" placeholder="Enter your address" />
+    <button type="submit" class="btn btn-primary">Create Account</button>
+</form>
+
+@code {
+    private User newUser = new User();
+    
+    // Upon submission of account creation adds user, logs user in, directs to new profile
+    private async Task HandleCreateAccount()
+    {
+        await UserService.AddUser(newUser);
+        await UserService.SetCurrentUser(newUser);
+        NavigationManager.NavigateTo($"/profile/{newUser.UserName}", true);
+    }
+}

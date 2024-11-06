@@ -1,0 +1,67 @@
+@page "/post/{PostId:int}"
+@using SocialMediaTesting.Services
+@using SocialMediaTesting.Models
+@inject PostService PostService
+@inject UserService UserService
+
+@* Component for a post. Shows the user, content, date, and like information.*@
+@if (post != null)
+{
+<div>
+    <a href="/profile/@UserName"><strong>@UserName</strong></a> posted:<br />
+    @post.Content<br />
+
+        @*Checks if a post contains a photo and includes this if necessary*@
+        @if (@post.Image != null)
+        {
+            <img src="@($"data:image/jpeg;base64,{post.Image}")" alt="Post Image" style= "object-fit: contain;" />
+        }
+
+        <small>On @post.Timestamp</small><br />
+    <i class="@HeartIconClass" @onclick="ToggleLike"></i>Liked by: <a href="/post/@PostId/likedby">@post.LikeCount</a>
+</div>
+}
+
+@code {
+    [Parameter] public int PostId { get; set; }
+
+    private Post post { get; set; }
+    private string UserName { get; set; }
+    private bool IsLikedByCurrentUser { get; set; }
+    private string HeartIconClass => IsLikedByCurrentUser ? "bi bi-heart-fill" : "bi bi-heart";
+
+    // Function called asynchronously on page load
+    protected override async Task OnInitializedAsync()
+    {
+        // Load the post based on PostId
+        var posts = await PostService.GetAllPosts();
+        post = posts.FirstOrDefault(p => p.PostId == PostId);
+
+        if (post != null)
+        {
+            // Gets user based on pst ID and sets the username variable for the post
+            var user = await UserService.GetUserById(post.UserId);
+            UserName = user.UserName;
+
+            // Gets liked by status and fills or empties heart logo based on result
+            IsLikedByCurrentUser = await PostService.IsPostLikedByCurrentUser(post);
+        }
+    }
+    // Function to handle logic behind liking a post
+    private async Task ToggleLike()
+    {
+        if (IsLikedByCurrentUser)
+        {
+            await PostService.UnlikePost(post);
+        }
+        else
+        {
+            await PostService.LikePost(post);
+        }
+        
+        // Updates post and liked status and re-renders component
+        post = await PostService.GetPostById(post.PostId);
+        IsLikedByCurrentUser = await PostService.IsPostLikedByCurrentUser(post);
+        StateHasChanged();
+    }
+}

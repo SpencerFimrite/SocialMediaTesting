@@ -1,0 +1,45 @@
+﻿@page "/"
+@using SocialMediaTesting.Services
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Components
+@inject UserService UserService
+@inject PostService PostService
+
+<PageTitle>Home</PageTitle>
+
+@if (isUserLoggedIn)
+{
+    <h1>Hello, @userName!</h1>
+    <h3>Welcome to your feed.</h3>
+    @foreach (var post in posts)
+    {
+        <PostComponent PostId="@post.PostId"/>
+    }
+}
+else
+{
+    <h1>Hello, Guest!</h1>
+    <h3>You must be signed in to see any posts</h3>
+}
+
+@code {
+    private bool isUserLoggedIn;
+    private string userName = string.Empty;
+    private List<Post> posts = new List<Post>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // If user is logged in displays custom feed based on this user
+        isUserLoggedIn = await UserService.IsUserLoggedIn();
+        
+        if (isUserLoggedIn)
+        {
+            var user = await UserService.GetCurrentUser();
+            if (user != null)
+            {
+                userName = user.Name;
+                posts = await PostService.GetAllPosts();
+            }
+        }
+    }
+}

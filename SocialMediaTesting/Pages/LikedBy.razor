@@ -1,0 +1,33 @@
+@page "/post/{PostId:int}/likedby"
+@using SocialMediaTesting.Models
+@using SocialMediaTesting.Services
+@inject PostService PostService
+@inject UserService UserService
+
+<h3>Liked by:</h3>
+@foreach (string userName in userNames)
+{
+    <p>@userName</p>
+}
+
+@code {
+    [Parameter]
+    public int PostId { get; set; }
+    
+    public List<int> likedBy = new List<int>();
+    public List<string> userNames = new List<string>();
+    public Post post = new Post();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Gets post by ID, pulls list of users who liked it, used to display list.
+        post = await PostService.GetPostById(PostId);
+        likedBy = post.LikedByUserIds;
+        foreach (int i in likedBy)
+        {
+            var user = await UserService.GetUserById(i);
+            userNames.Add(user.UserName);
+        }
+    }
+}
